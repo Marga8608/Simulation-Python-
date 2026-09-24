@@ -1,4 +1,5 @@
 import pygame
+import random
 
 class Creature(pygame.sprite.Sprite):
     def __init__(self, ai_settings, screen, x=None, y=None):
@@ -29,3 +30,24 @@ class Creature(pygame.sprite.Sprite):
     def blitme(self):
         #Draw the creature manually (if not using Pygame Group drawing).
         self.screen.blit(self.image, self.rect)
+
+    def update_velocity(self):
+            self.angle = random.uniform(0,360)
+            self.vel.from_polar((self.speed, self.angle))
+    
+    def update_flag(self):
+        if self.vel.x > 0:
+            self.moving_right = True
+            self.moving_left = False
+        if self.vel.x < 0:
+            self.moving_left = True
+            self.moving_right = False
+        if self.vel.y > 0:
+            self.moving_down = True
+            self.moving_up = False
+        if self.vel.y < 0:
+            self.moving_up = True
+            self.moving_down = False
+            
+    
+    

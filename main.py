@@ -23,7 +23,7 @@ def run_game():
     player = Player(ai_settings, screen)
     
     # NPCs
-    for i in range(5):
+    for i in range(8):
         herb = Herbivore(ai_settings, screen, all_herbs, x=randint(20,ai_settings.screen_width), y=randint(20,ai_settings.screen_height))
         all_herbs.add(herb)
 

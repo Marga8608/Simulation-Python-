@@ -44,6 +44,6 @@ def update_screen(ai_settings, screen, crit, herbs):
 
 def crits_update(player, all_herbs):
         player.update()
-        for herb in all_herbs:
-            herb.update_velocity()
+        #for herb in all_herbs:
+            #herb.update_velocity()
         all_herbs.update()   # Runs the update() method on every NPC in the group
