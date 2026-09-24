@@ -12,6 +12,7 @@ class Player(Creature):
         self.speed = 1 #Overwrites the speed of Creature
         self.energy = 100
 
+
             # Movement flags
         self.moving_right = False
         self.moving_left = False

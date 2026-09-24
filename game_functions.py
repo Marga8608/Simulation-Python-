@@ -44,6 +44,10 @@ def update_screen(ai_settings, screen, crit, herbs):
 
 def crits_update(player, all_herbs):
         player.update()
-        #for herb in all_herbs:
-            #herb.update_velocity()
         all_herbs.update()   # Runs the update() method on every NPC in the group
+
+def get_image(self, col, row, width, height):
+    x = col * width
+    y = row * height
+    rect = pygame.Rect(x, y, width, height)
+    return self.subsurface(rect)
