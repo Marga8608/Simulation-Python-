@@ -9,3 +9,7 @@ class Settings():
 
         #Crit settings
         self.crit_speed = 1
+        self.crit_image = 'graphics/carn.png'
+
+        #Herb settings
+        self.herb_image = 'graphics/herb.png'

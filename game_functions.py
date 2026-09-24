@@ -33,11 +33,17 @@ def check_events(ai_settings, screen, crit):
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, crit)
 
-def update_screen(ai_settings, screen, crit, herb):
+def update_screen(ai_settings, screen, crit, herbs):
 #Update images on the screen and flip to the new screen.
 # Redraw the screen during each pass through the loop.
     screen.fill(ai_settings.bg_color)  
     crit.blitme()
-    herb.blitme() 
+    herbs.draw(screen)
 # Make the most recently drawn screen visible.
     pygame.display.flip()
+
+def crits_update(player, all_herbs):
+        player.update()
+        for herb in all_herbs:
+            herb.update_velocity()
+        all_herbs.update()   # Runs the update() method on every NPC in the group
