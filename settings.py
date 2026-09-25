@@ -8,7 +8,7 @@ class Settings():
         self.caption = ("Simulation")
 
         #Crit settings
-        self.crit_speed = 1
+        self.crit_speed = 0
         self.crit_image = 'graphics/carn.png'
 
         #Herb settings

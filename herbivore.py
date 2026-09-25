@@ -4,68 +4,29 @@ import random
 
 class Herbivore(Creature):
     def __init__(self, ai_settings, screen, all_herbs, x, y):
-        # Pass herbivore-specific image and coordinates to base Creature
-        super().__init__(ai_settings, screen, x=x, y=y)
+        # Pass herbivore-specific attributes to Creature
+        stats = {
+            "sprite_sheet": 'graphics/slime.png',
+            "animation_steps": [6, 6, 6, 6],
+            "animation_rows": [3, 4, 4, 5],
+            "frame_size_x": 32,
+            "frame_size_y": 32,
+            "height": 64,
+            "width": 64,
+            "energy": 100,
+            "speed": random.uniform(0,0.3)
+            }
+        super().__init__(ai_settings, screen, **stats, x=x, y=y)
+        
 
-        self.sheet = pygame.image.load('graphics/slime.png').convert_alpha()
-        self.animation_list = []
-        animation_steps = [6, 6, 6, 6]
-        animation_rows = [3, 4, 4, 5]
-        last_update = pygame.time.get_ticks()
-        self.animation_cooldown = 200
-        self.direction = 'down'
-        self.current_frame = 0
-        self.animation_timer = pygame.time.get_ticks()
-
-        for i in range(len(animation_rows)):
-            temp_image_list = []
-            for j in range(animation_steps[i]):
-                temp_image_list.append(self.get_image(j, animation_rows[i], 32, 32))
-            self.animation_list.append(temp_image_list)
-
-        # Herbivore-specific attributes
-        crit_image = self.animation_list[0][0]
-        self.image = pygame.transform.scale(crit_image, (self.width, self.height))
-        self.energy = 100
-        self.herb_group = all_herbs
-        self.speed = random.uniform(0,0.3)
-
-        self.moving_right = False
-        self.moving_left = False
-        self.moving_up = False
-        self.moving_down = False
         self.angle = random.uniform(0,360)
-        self.vel = pygame.math.Vector2()
         self.vel.from_polar((self.speed, self.angle))
         self.updated = pygame.time.get_ticks()
         self.interval = random.randint(1500, 4000)
 
-    def get_image(self, col, row, width, height):
-        x = col * width
-        y = row * height
-        rect = pygame.Rect(x, y, width, height)
-        return self.sheet.subsurface(rect)
-
     def update(self): 
-        current_time = pygame.time.get_ticks()
-        current_speed = self.vel.length()
-    
-    # 2. Prevent division by zero if the herbivore stops moving
-
-        if abs(self.vel.x) > abs(self.vel.y):
-            self.direction = 1 if self.vel.x > 0 else 2
-        else:
-            self.direction = 0 if self.vel.y > 0 else 3
-
-        if current_time - self.animation_timer >= self.animation_cooldown:
-            self.animation_timer = current_time   
-        # Get the list of frames for the current direction
-            frame_list = self.animation_list[self.direction]
-        # Advance the frame, use modulo (%) to loop back to 0 automatically
-            self.current_frame = (self.current_frame + 1) % len(frame_list) 
-        # Set the actual sprite image Pygame uses to draw
-            self.image = pygame.transform.scale(frame_list[self.current_frame], (self.width, self.height))
-        
+        current_time = pygame.time.get_ticks()   
+        self.animate(current_time)  
         '''if current_time - self.updated >= self.interval:
             self.update_velocity()
             self.updated = current_time
@@ -81,13 +42,7 @@ class Herbivore(Creature):
             self.update_velocity()
         self.update_flag()
             #Update position based on movement flags and speed.
-        if self.moving_right:
-            self.pos.x += self.vel.x
-        if self.moving_left:
-            self.pos.x += self.vel.x
-        if self.moving_up:
-            self.pos.y += self.vel.y
-        if self.moving_down:
-            self.pos.y += self.vel.y
+        self.pos += self.vel
+
         # Sync integer screen rect with precise float tracking
         self.rect.center = (round(self.pos.x), round(self.pos.y))
