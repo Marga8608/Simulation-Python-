@@ -21,6 +21,9 @@ class Creature(pygame.sprite.Sprite):
         #Frames
         self.rows = stats.get("animation_rows")
         self.steps = stats.get("animation_steps")
+        self.infl_rect = stats.get("inflate_rect")
+        self.herbs = stats.get("herbs")
+        self.player = stats.get("player")
         self.animation_list = self.load_frames()
         crit_image = self.animation_list[0][0]
         self.image = pygame.transform.scale(crit_image, (self.width, self.height))  
@@ -39,7 +42,9 @@ class Creature(pygame.sprite.Sprite):
         self.pos = pygame.math.Vector2(start_x, start_y)
         self.vel = pygame.math.Vector2()
         self.rect = self.image.get_rect()
-        self.rect.center = (round(self.pos.x), round(self.pos.y))
+        self.hitbox = self.rect.inflate(self.infl_rect[0], self.infl_rect[1]) 
+        self.hitbox.center = (round(self.pos.x), round(self.pos.y))
+        self.rect.center = self.hitbox.center
         self.last_update = pygame.time.get_ticks()
         #Movement flags
         self.moving_right = False
@@ -85,8 +90,8 @@ class Creature(pygame.sprite.Sprite):
         # Advance the frame, use modulo (%) to loop back to 0 automatically
             self.current_frame = (self.current_frame + 1) % len(frame_list) 
         # Set the actual sprite image Pygame uses to draw
-            self.image = pygame.transform.scale(frame_list[self.current_frame], (self.width, self.height))
-    
+            self.image = pygame.transform.scale(frame_list[self.current_frame], (self.width, self.height))           
+            self.rect = self.image.get_rect(center=self.rect.center)
     #Loads all the animation frames for the object, using get_image on the sheet       
     def load_frames(self):
         complete_list = []
@@ -104,4 +109,23 @@ class Creature(pygame.sprite.Sprite):
         rect = pygame.Rect(x, y, width, height)
         return self.sheet.subsurface(rect)
 
-    
+    def check_collisions(self, crits):
+        hits = pygame.sprite.spritecollide(self, crits, False, 
+        collided=lambda s1, s2: s1 != s2 and s1.hitbox.colliderect(s2.hitbox))
+        if hits:
+            target = hits[0]
+            self.vel, target.vel = target.vel, self.vel
+        # Checks for hitbox overlap
+            overlap_vector = self.pos - target.pos
+            if overlap_vector.length() > 0:
+                overlap_vector = overlap_vector.normalize()
+                #Pushes them apart by 2 pixels so hitboxes un-mesh
+                self.pos += overlap_vector * 2
+                target.pos -= overlap_vector * 2
+                # Snaps hitboxes to the new positions
+                self.hitbox.center = (round(self.pos.x), round(self.pos.y))
+                target.hitbox.center = (round(target.pos.x), round(target.pos.y))
+
+    def player_collision(self):
+         if self.hitbox.colliderect(self.player.hitbox):
+             self.vel *= -1

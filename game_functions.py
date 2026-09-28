@@ -38,8 +38,13 @@ def update_screen(ai_settings, screen, player, herbs):
 # Redraw the screen during each pass through the loop.
     screen.fill(ai_settings.bg_color)  
     player.blitme()
-    pygame.draw.rect(screen, (255, 0, 0), player.rect, 2)
     herbs.draw(screen)
+    #Rect debugging
+   
+    #pygame.draw.rect(screen, (255, 0, 0), player.hitbox, 2)
+    #for herb in herbs:
+       # pygame.draw.rect(screen, (255, 0, 0), herb.hitbox, 2)
+    
 # Make the most recently drawn screen visible.
     pygame.display.flip()
 

@@ -16,15 +16,11 @@ def run_game():
     screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height))
     pygame.display.set_caption(ai_settings.caption)
 
-    #NPC groups
-    all_herbs = pygame.sprite.Group()
-
-
     player = Player(ai_settings, screen)
-    
-    # NPCs
-    for i in range(8):
-        herb = Herbivore(ai_settings, screen, all_herbs, x=randint(20,ai_settings.screen_width), y=randint(20,ai_settings.screen_height))
+    #NPCs
+    all_herbs = pygame.sprite.Group() 
+    for i in range(10):
+        herb = Herbivore(ai_settings, screen, player, all_herbs, x=randint(20,ai_settings.screen_width), y=randint(20,ai_settings.screen_height))
         all_herbs.add(herb)
 
     #Main loop
