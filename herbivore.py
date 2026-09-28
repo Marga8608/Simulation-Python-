@@ -25,15 +25,14 @@ class Herbivore(Creature):
         self.angle = random.uniform(0,360)
         self.vel.from_polar((self.speed, self.angle))
         self.updated = pygame.time.get_ticks()
-        self.interval = random.randint(1500, 4000)
+        
 
     def update(self): 
-        current_time = pygame.time.get_ticks()         
-        '''if current_time - self.updated >= self.interval:
-            self.update_velocity()
-            self.updated = current_time
-            self.interval = random.randint(1500, 10000)
-            self.speed = random.uniform(0,0.3) '''
+        current_time = pygame.time.get_ticks() 
+        if self.escaping and current_time - self.updated >= self.interval:
+                self.vel.scale_to_length(self.speed)
+                self.escaping = False
+
         # Check X boundaries (Left and Right)
         if self.hitbox.left <= 0 or self.hitbox.right >= self.ai_settings.screen_width:
             self.vel.x *= -1  # Reverses horizontal direction instantly 

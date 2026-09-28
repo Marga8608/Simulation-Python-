@@ -24,6 +24,8 @@ class Creature(pygame.sprite.Sprite):
         self.infl_rect = stats.get("inflate_rect")
         self.herbs = stats.get("herbs")
         self.player = stats.get("player")
+        self.updated = pygame.time.get_ticks()
+        self.interval = 7000
         self.animation_list = self.load_frames()
         crit_image = self.animation_list[0][0]
         self.image = pygame.transform.scale(crit_image, (self.width, self.height))  
@@ -51,6 +53,7 @@ class Creature(pygame.sprite.Sprite):
         self.moving_left = False
         self.moving_up = False
         self.moving_down = False
+        self.escaping = False
         #Groups
 
     def blitme(self):
@@ -128,4 +131,12 @@ class Creature(pygame.sprite.Sprite):
 
     def player_collision(self):
          if self.hitbox.colliderect(self.player.hitbox):
-             self.vel *= -1
+            self.updated = pygame.time.get_ticks()
+            self.escaping = True
+            overlap_vector = self.pos - self.player.pos
+            if overlap_vector.length() > 0:
+                overlap_vector = overlap_vector.normalize()
+                #Pushes them apart by 2 pixels so hitboxes un-mesh
+                self.pos += overlap_vector * 2
+                self.hitbox.center = (round(self.pos.x), round(self.pos.y))
+            self.vel = self.player.vel * 10

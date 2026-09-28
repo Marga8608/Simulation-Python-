@@ -49,6 +49,6 @@ def update_screen(ai_settings, screen, player, herbs):
     pygame.display.flip()
 
 def crits_update(player, all_herbs):
-        player.update()
+        player.update(all_herbs)
         all_herbs.update()   # Runs the update() method on every NPC in the group
 
