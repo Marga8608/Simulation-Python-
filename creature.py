@@ -2,7 +2,7 @@ import pygame
 import random
 
 class Creature(pygame.sprite.Sprite):
-    def __init__(self, ai_settings, screen, x=None, y=None,**stats):
+    def __init__(self, ai_settings, screen, **stats):
         # 1. Initialize Pygame's Sprite parent class
         super().__init__()
         #Screen settings
@@ -18,6 +18,7 @@ class Creature(pygame.sprite.Sprite):
         self.width = stats.get("width", 64)
         self.energy = stats.get("energy", 100)
         self.speed = stats.get("speed", 0.1)
+        
         #Frames
         self.rows = stats.get("animation_rows")
         self.steps = stats.get("animation_steps")
@@ -25,7 +26,7 @@ class Creature(pygame.sprite.Sprite):
         self.herbs = stats.get("herbs")
         self.player = stats.get("player")
         self.updated = pygame.time.get_ticks()
-        self.interval = 7000
+        self.interval = 5000
         self.animation_list = self.load_frames()
         crit_image = self.animation_list[0][0]
         self.image = pygame.transform.scale(crit_image, (self.width, self.height))  
@@ -38,10 +39,8 @@ class Creature(pygame.sprite.Sprite):
         self.current_frame = 0
         self.animation_timer = pygame.time.get_ticks()
         
-        #Position setup (default to screen center if x, y are not provided)
-        start_x = x if x is not None else self.screen_rect.centerx
-        start_y = y if y is not None else self.screen_rect.centery
-        self.pos = pygame.math.Vector2(start_x, start_y)
+        #Position setup
+        self.pos = pygame.math.Vector2(stats.get("x"), stats.get("y"))
         self.vel = pygame.math.Vector2()
         self.rect = self.image.get_rect()
         self.hitbox = self.rect.inflate(self.infl_rect[0], self.infl_rect[1]) 
@@ -79,14 +78,17 @@ class Creature(pygame.sprite.Sprite):
             self.moving_down = False
  
     def animate(self, current_time):
-        if self.vel:
+        speed = self.vel.length()
+        if speed > 0:
             if abs(self.vel.x) > abs(self.vel.y):
                 self.direction = 1 if self.vel.x > 0 else 2
             else:
                 self.direction = 0 if self.vel.y > 0 else 3
+            dynamic_cooldown = self.animation_cooldown / (speed * 0.05)
         else:
+            dynamic_cooldown = self.animation_cooldown
             self.direction = 0
-        if current_time - self.animation_timer >= self.animation_cooldown:
+        if current_time - self.animation_timer >= dynamic_cooldown:
             self.animation_timer = current_time   
         # Get the list of frames for the current direction
             frame_list = self.animation_list[self.direction]
@@ -95,6 +97,7 @@ class Creature(pygame.sprite.Sprite):
         # Set the actual sprite image Pygame uses to draw
             self.image = pygame.transform.scale(frame_list[self.current_frame], (self.width, self.height))           
             self.rect = self.image.get_rect(center=self.rect.center)
+        
     #Loads all the animation frames for the object, using get_image on the sheet       
     def load_frames(self):
         complete_list = []
@@ -103,7 +106,7 @@ class Creature(pygame.sprite.Sprite):
             for j in range(self.steps[i]):
                 temp_list.append(self.get_image(j, self.rows[i], self.size_x, self.size_y))
             complete_list.append(temp_list)
-        complete_list[2] = [pygame.transform.flip(frame, True, False) for frame in complete_list[1]]
+        
         return(complete_list)
 
     def get_image(self, col, row, width, height):
@@ -124,19 +127,14 @@ class Creature(pygame.sprite.Sprite):
                 overlap_vector = overlap_vector.normalize()
                 #Pushes them apart by 2 pixels so hitboxes un-mesh
                 self.pos += overlap_vector * 2
-                target.pos -= overlap_vector * 2
+                
                 # Snaps hitboxes to the new positions
                 self.hitbox.center = (round(self.pos.x), round(self.pos.y))
-                target.hitbox.center = (round(target.pos.x), round(target.pos.y))
-
-    def player_collision(self):
-         if self.hitbox.colliderect(self.player.hitbox):
-            self.updated = pygame.time.get_ticks()
-            self.escaping = True
-            overlap_vector = self.pos - self.player.pos
-            if overlap_vector.length() > 0:
-                overlap_vector = overlap_vector.normalize()
-                #Pushes them apart by 2 pixels so hitboxes un-mesh
-                self.pos += overlap_vector * 2
-                self.hitbox.center = (round(self.pos.x), round(self.pos.y))
-            self.vel = self.player.vel * 10
+               
+    def wall_collision(self, wall):
+        overlap_vector = self.pos - self.player.pos
+        if overlap_vector.length() > 0:
+            verlap_vector = overlap_vector.normalize()
+            self.pos += overlap_vector
+            self.hitbox.center = (round(self.pos.x), round(self.pos.y))
+            
