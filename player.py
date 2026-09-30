@@ -7,8 +7,8 @@ class Player(Creature):
         stats = {
             "x": x,
             "y": y,
-            "sprite_sheet": 'graphics/shura.png',
-            "animation_steps": [9, 9, 9, 9],
+            "sprite_sheet": 'graphics/shura8.png',
+            "animation_steps": [8, 8, 8, 8],
             "animation_rows": [2, 3, 1, 0],
             "frame_size_x": 64,
             "frame_size_y": 64,

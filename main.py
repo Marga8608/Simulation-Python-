@@ -18,6 +18,7 @@ def run_game():
     #Groups
     all_sprites = pygame.sprite.Group()
     all_herbs = pygame.sprite.Group() 
+    all_static = pygame.sprite.Group()
     #Player character
     player = Player(ai_settings, screen, 600, 350)
     all_sprites.add(player)

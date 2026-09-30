@@ -3,6 +3,7 @@ import pygame
 from random import randint
 from herbivore import Herbivore
 from player import Player
+from static_objects import Static_object
 def check_keydown_events(event, player): #Add (ai_settings, screen) if handling more than movement
 #Respond to keypresses.
     if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
@@ -63,3 +64,7 @@ def generate_herbs(ai_settings, screen, player, num, *groups):
             herb = Herbivore(ai_settings, screen, player, groups[0], x, y)
             groups[0].add(herb)
             groups[1].add(herb)
+
+def generate_static(ai_settings, screen, x, y, *groups):
+    new_stat = Static_object(ai_settings, screen, image = None, **stats)
+
