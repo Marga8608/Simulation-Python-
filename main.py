@@ -13,6 +13,7 @@ def run_game():
     ai_settings = Settings()
     screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height))
     pygame.display.set_caption(ai_settings.caption)
+    background = pygame.image.load(ai_settings.background).convert()
     clock = pygame.time.Clock()
 
     #Groups
@@ -32,6 +33,6 @@ def run_game():
         dt = clock.tick(60) / 1000.0
         gf.check_events(ai_settings, screen, player)
         gf.crits_update(player, groups[0], dt)
-        gf.update_screen(ai_settings, screen, groups[1])
+        gf.update_screen(ai_settings, screen, background, groups[1])
 
 run_game()

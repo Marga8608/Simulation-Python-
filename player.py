@@ -12,8 +12,8 @@ class Player(Creature):
             "animation_rows": [2, 3, 1, 0],
             "frame_size_x": 64,
             "frame_size_y": 64,
-            "height": 64,
-            "width": 64,
+            "height": 96,
+            "width": 96,
             "energy": 100,
             "speed": 90,
             "inflate_rect": [-35,-35]

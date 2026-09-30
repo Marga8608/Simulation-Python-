@@ -41,7 +41,7 @@ class Herbivore(Creature):
             self.startled = False
         if self.vel.x == 0 or self.vel.y == 0:
             self.update_velocity()
-            
+
         self.wall_collisions()
 
         #self.player_collision()

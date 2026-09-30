@@ -6,10 +6,5 @@ class Settings():
         self.screen_height = 720
         self.bg_color = ("forestgreen")
         self.caption = ("Simulation")
-
-        #Crit settings
-        self.crit_speed = 0
-        self.crit_image = 'graphics/carn.png'
-
-        #Herb settings
-        self.herb_image = 'graphics/herb.png'
+        self.background = "graphics/bg16.png"
+  

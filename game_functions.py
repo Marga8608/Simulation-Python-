@@ -36,10 +36,10 @@ def check_events(ai_settings, screen, player):
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, player)
 
-def update_screen(ai_settings, screen, all_sprites):
+def update_screen(ai_settings, screen, bg, all_sprites):
 #Update images on the screen and flip to the new screen.
 # Redraw the screen during each pass through the loop.
-    screen.fill(ai_settings.bg_color)  
+    screen.blit(bg)  
     sorted_sprites = sorted(all_sprites, key=lambda sprite: sprite.hitbox.bottom)
     # Blit sprites that move in order based on pos.y
     for sprite in sorted_sprites:
@@ -71,7 +71,7 @@ def generate_walls(ai_settings, screen, group):
     wall_w = [100, scr_w+200, scr_w+200, 100]
     wall_h = [scr_w, 100, 100, scr_w]
     x_coord = [-100, 0, 0, scr_w]
-    y_coord = [0, -100, scr_h, 0]
+    y_coord = [0, 0, scr_h, 0]
     for i in range(4):
         wall = Static_object(ai_settings, screen, x = x_coord[i], y = y_coord[i], width = wall_w[i], height = wall_h[i])
         group.add(wall)
