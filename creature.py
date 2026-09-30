@@ -24,6 +24,7 @@ class Creature(pygame.sprite.Sprite):
         self.steps = stats.get("animation_steps")
         self.infl_rect = stats.get("inflate_rect")
         self.herbs = stats.get("herbs")
+        self.static = stats.get("static_objects")
         self.player = stats.get("player")
         self.updated = pygame.time.get_ticks()
         self.interval = 5000
@@ -53,6 +54,7 @@ class Creature(pygame.sprite.Sprite):
         self.moving_up = False
         self.moving_down = False
         self.escaping = False
+        self.startled = False
         #Groups
 
     def blitme(self):
@@ -115,26 +117,43 @@ class Creature(pygame.sprite.Sprite):
         rect = pygame.Rect(x, y, width, height)
         return self.sheet.subsurface(rect)
 
-    def check_collisions(self, crits):
-        hits = pygame.sprite.spritecollide(self, crits, False, 
+    def check_collisions(self, current_time):
+        hits = pygame.sprite.spritecollide(self, self.herbs, False, 
         collided=lambda s1, s2: s1 != s2 and s1.hitbox.colliderect(s2.hitbox))
         if hits:
+            if not self.escaping:
+                self.startled = True
+                self.updated = current_time
             target = hits[0]
-            self.vel, target.vel = target.vel, self.vel
+            hits[0].angle, self.angle = self.vel.as_polar()[1], hits[0].vel.as_polar()[1]
+            hits[0].startled = True
+            hits[0].updated = current_time
         # Checks for hitbox overlap
-            overlap_vector = self.pos - target.pos
-            if overlap_vector.length() > 0:
-                overlap_vector = overlap_vector.normalize()
-                #Pushes them apart by 2 pixels so hitboxes un-mesh
-                self.pos += overlap_vector * 2
-                
-                # Snaps hitboxes to the new positions
-                self.hitbox.center = (round(self.pos.x), round(self.pos.y))
+            self.check_overlap(hits[0])
                
-    def wall_collision(self, wall):
-        overlap_vector = self.pos - self.player.pos
-        if overlap_vector.length() > 0:
-            verlap_vector = overlap_vector.normalize()
-            self.pos += overlap_vector
-            self.hitbox.center = (round(self.pos.x), round(self.pos.y))
+    def wall_collisions(self):
+        hits = pygame.sprite.spritecollide(self, self.static, False, 
+        collided=lambda s1, s2: s1 != s2 and s1.hitbox.colliderect(s2.hitbox))
+        if hits:
+            for hit in hits:
+                self.check_overlap(hit)
+
+    def check_overlap(self, other_rect):
+        overlap = self.hitbox.clip(other_rect.hitbox)
+        if overlap.width < overlap.height:
+        # Resolve X axis
+            if self.hitbox.centerx < other_rect.hitbox.centerx:
+                self.pos.x -= overlap.width
+            else:
+                self.pos.x += overlap.width
+            self.vel.x *= -1 # Reverse velocity for bounce
+        else:
+        # Resolve Y axis
+            if self.hitbox.centery < other_rect.hitbox.centery:
+                self.pos.y -= overlap.height
+            else:
+                self.pos.y += overlap.height
+            self.vel.y *= -1 # Reverse velocity for bounce
+        self.angle = self.vel.as_polar()[1]
+        self.hitbox.center = (round(self.pos.x), round(self.pos.y))
             

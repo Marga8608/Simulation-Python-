@@ -16,23 +16,22 @@ def run_game():
     clock = pygame.time.Clock()
 
     #Groups
-    all_sprites = pygame.sprite.Group()
-    all_herbs = pygame.sprite.Group() 
-    all_static = pygame.sprite.Group()
+    #0 = all_herbs, 1= all_sprites, 2= all_static_objects
+    groups = [pygame.sprite.Group(), pygame.sprite.Group(), pygame.sprite.Group()]
     #Player character
     player = Player(ai_settings, screen, 600, 350)
-    all_sprites.add(player)
+    groups[1].add(player)
     #NPCs
-    gf.generate_herbs(ai_settings, screen, player, 10, all_herbs, all_sprites)
+    gf.generate_herbs(ai_settings, screen, player, 10, *groups)
     #Outer boundaries
-
+    gf.generate_walls(ai_settings, screen, groups[2])
 
     #Main loop
     running = True
     while running:
         dt = clock.tick(60) / 1000.0
         gf.check_events(ai_settings, screen, player)
-        gf.crits_update(player, all_herbs, dt)
-        gf.update_screen(ai_settings, screen, all_sprites)
+        gf.crits_update(player, groups[0], dt)
+        gf.update_screen(ai_settings, screen, groups[1])
 
 run_game()

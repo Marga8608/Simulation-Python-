@@ -3,7 +3,7 @@ import pygame
 import random
 
 class Herbivore(Creature):
-    def __init__(self, ai_settings, screen, player, all_herbs, x, y):
+    def __init__(self, ai_settings, screen, player, x, y, *groups):
         # Pass herbivore-specific attributes to Creature
         stats = {
             "x": x,
@@ -16,9 +16,10 @@ class Herbivore(Creature):
             "height": 64,
             "width": 64,
             "energy": 100,
-            "speed": random.uniform(1,40),
+            "speed": random.uniform(10,40),
             "inflate_rect": [-40,-40],
-            "herbs": all_herbs,
+            "herbs": groups[0],
+            "static_objects": groups[2],
             "player": player
             }
         super().__init__(ai_settings, screen, **stats)
@@ -33,22 +34,19 @@ class Herbivore(Creature):
         current_time = pygame.time.get_ticks() 
         if self.escaping and current_time - self.updated < self.interval:
                 self.vel.from_polar((150, self.angle))
+        elif self.startled and current_time - self.updated < self.interval:
+                self.vel.from_polar((100, self.angle))
         else:
             self.vel.from_polar((self.speed, self.angle))
             self.escaping = False
+            self.startled = False
 
         # Check X boundaries (Left and Right)
-        if self.hitbox.left <= 0:
-            self.vel.x *= -1  # Reverses horizontal direction  
-        elif self.hitbox.right >= self.ai_settings.screen_width:
-            self.vel.x *= -1  # Reverses horizontal direction   
-        # Check Y boundaries (Top and Bottom)
-        if self.hitbox.top <= 0 or self.hitbox.bottom >= self.ai_settings.screen_height:
-            self.vel.y *= -1  # Reverses vertical direction instantly
+        self.wall_collisions()
         if self.vel.x == 0 or self.vel.y == 0:
             self.update_velocity()
         #self.player_collision()
-        self.check_collisions(self.herbs)
+        self.check_collisions(current_time)
         #Update position based on movement flags and speed.
         self.update_flag()
         #Updates self.angle in case of bouncing off walls!!!
