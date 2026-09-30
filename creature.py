@@ -125,11 +125,11 @@ class Creature(pygame.sprite.Sprite):
                 self.startled = True
                 self.updated = current_time
             target = hits[0]
-            hits[0].angle, self.angle = self.vel.as_polar()[1], hits[0].vel.as_polar()[1]
-            hits[0].startled = True
-            hits[0].updated = current_time
+            target.angle, self.angle = self.vel.as_polar()[1], target.vel.as_polar()[1]
+            target.startled = True
+            target.updated = current_time
         # Checks for hitbox overlap
-            self.check_overlap(hits[0])
+            self.check_overlap(target)
                
     def wall_collisions(self):
         hits = pygame.sprite.spritecollide(self, self.static, False, 

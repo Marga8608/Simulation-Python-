@@ -24,7 +24,6 @@ class Herbivore(Creature):
             }
         super().__init__(ai_settings, screen, **stats)
         
-
         self.angle = random.uniform(0,360)
         self.vel.from_polar((self.speed, self.angle))
         self.updated = pygame.time.get_ticks()
@@ -40,11 +39,11 @@ class Herbivore(Creature):
             self.vel.from_polar((self.speed, self.angle))
             self.escaping = False
             self.startled = False
-
-        # Check X boundaries (Left and Right)
-        self.wall_collisions()
         if self.vel.x == 0 or self.vel.y == 0:
             self.update_velocity()
+            
+        self.wall_collisions()
+
         #self.player_collision()
         self.check_collisions(current_time)
         #Update position based on movement flags and speed.
