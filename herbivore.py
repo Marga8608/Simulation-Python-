@@ -57,14 +57,19 @@ class Herbivore(Creature):
             elif self.targetting:
                 direction = self.target.pos - self.pos
                 self.angle = direction.as_polar()[1]
-                if self.hitbox.clip(self.target.hitbox):
-                    self.targetting = False
-                    self.searching = True
-                    self.target.ready = False
-                    self.target.empty = True
-                    self.escaping = True
-                    self.updated = current_time
-                    self.score.carrots_eaten += 1    
+                if self.target.ready:
+                    if self.hitbox.clip(self.target.hitbox):
+                        self.targetting = False
+                        self.searching = True
+                        self.target.ready = False
+                        self.target.empty = True
+                        self.escaping = True
+                        self.updated = current_time
+                        self.score.carrots_eaten += 1
+                else:
+                     self.targetting = False
+                     self.searching = True  
+                     self.target = None  
             
         self.vel.from_polar((self.speed, self.angle))
         self.check_walls()
