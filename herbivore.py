@@ -29,21 +29,44 @@ class Herbivore(Creature):
         self.vel.from_polar((self.speed, self.angle))
         self.updated = pygame.time.get_ticks()
         self.score = score
+        self.searching = True
+        self.targetting = False
+        self.target = None
+        self.targ_rect = self.rect.inflate(300, 300)
         
 
     def update(self, dt): 
         current_time = pygame.time.get_ticks() 
         if self.escaping and current_time - self.updated < self.interval:
-                self.vel.from_polar((150, self.angle))
+                self.speed =150
+                self.startled = False
         elif self.startled and current_time - self.updated < self.interval:
-                self.vel.from_polar((100, self.angle))
-        else:
-            self.vel.from_polar((self.speed, self.angle))
+                self.speed = 100
+        else:  
             self.escaping = False
             self.startled = False
-        if self.vel.x == 0 or self.vel.y == 0:
-            self.update_velocity()
-
+            self.speed = self.normal_speed
+            if self.searching:
+                target = self.check_plants()
+                if target:
+                    self.targetting = True
+                    self.searching = False
+                    self.target = target
+                    direction = target.pos - self.pos
+                    self.angle = direction.as_polar()[1]
+            elif self.targetting:
+                direction = self.target.pos - self.pos
+                self.angle = direction.as_polar()[1]
+                if self.hitbox.clip(self.target.hitbox):
+                    self.targetting = False
+                    self.searching = True
+                    self.target.ready = False
+                    self.target.empty = True
+                    self.escaping = True
+                    self.updated = current_time
+                    self.score.carrots_eaten += 1    
+            
+        self.vel.from_polar((self.speed, self.angle))
         self.check_walls()
 
         #self.player_collision()

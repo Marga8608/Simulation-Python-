@@ -86,8 +86,8 @@ def generate_walls(ai_settings, screen, group):
 
 def generate_planters(ai_settings, screen, player, *groups):
         num = 4
-        x_coord = [608,640]
-        y_coord = [384,416]
+        x_coord = [576,640]
+        y_coord = [352,416]
         for i in range(num):
             x = x_coord[i%2]
             y = y_coord[i//2]
@@ -104,7 +104,7 @@ def generate_assets(ai_settings):
     all_obstacles = pygame.sprite.Group()
     all_plants = pygame.sprite.Group()
     #Player character
-    score = ScoreBoard(screen)
+    score = ScoreBoard(screen, ai_settings.screen_width)
     player = Player(ai_settings, screen, 600, 350, score,all_herbs, all_plants)
     all_sprites.add(player)
     #NPCs

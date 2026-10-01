@@ -17,7 +17,8 @@ class Creature(pygame.sprite.Sprite):
         self.height = stats.get("height", 64)
         self.width = stats.get("width", 64)
         self.energy = stats.get("energy", 100)
-        self.speed = stats.get("speed", 0.1)
+        self.normal_speed = stats.get("speed", 0.1)
+        self.speed = self.normal_speed
         #Frames
         self.rows = stats.get("animation_rows")
         self.steps = stats.get("animation_steps")
@@ -122,6 +123,14 @@ class Creature(pygame.sprite.Sprite):
                 collided=lambda s1, s2: s1 != s2 and s1.hitbox.colliderect(s2.hitbox))
         return hits
     
+    def check_plants(self):
+            hits = pygame.sprite.spritecollide(self, self.plants, False, 
+                    collided=lambda s1, s2: s1 != s2 and s1.targ_rect.colliderect(s2.hitbox))
+            for hit in hits:
+                if hit.ready:
+                    return hit
+    
+    
     def check_bumps(self, current_time):
         hits = self.check_collisions(self.herbs)
         if hits:
@@ -130,8 +139,9 @@ class Creature(pygame.sprite.Sprite):
                 self.updated = current_time
             target = hits[0]
             target.angle, self.angle = self.vel.as_polar()[1], target.vel.as_polar()[1]
-            target.startled = True
-            target.updated = current_time
+            if not target.escaping:
+                target.startled = True
+                target.updated = current_time
         # Checks for hitbox overlap
             self.check_overlap(target)
                

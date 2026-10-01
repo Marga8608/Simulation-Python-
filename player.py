@@ -42,6 +42,10 @@ class Player(Creature):
                 hit.angle = self.vel.as_polar()[1]
                 hit.escaping = True
                 hit.updated = current_time
+                if hit.targetting:
+                    hit.targetting = False
+                    hit.searching = True
+                    self.score.carrots_saved += 1
         else:    
             self.vel.update(0, 0)
             #Update position based on movement flags and speed.
