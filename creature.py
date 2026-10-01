@@ -18,13 +18,13 @@ class Creature(pygame.sprite.Sprite):
         self.width = stats.get("width", 64)
         self.energy = stats.get("energy", 100)
         self.speed = stats.get("speed", 0.1)
-        
         #Frames
         self.rows = stats.get("animation_rows")
         self.steps = stats.get("animation_steps")
         self.infl_rect = stats.get("inflate_rect")
         self.herbs = stats.get("herbs")
         self.static = stats.get("static_objects")
+        self.plants = stats.get("plants")
         self.player = stats.get("player")
         self.updated = pygame.time.get_ticks()
         self.interval = 5000

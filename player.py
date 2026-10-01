@@ -2,7 +2,7 @@ from creature import Creature
 import pygame
 
 class Player(Creature):
-    def __init__(self, ai_settings, screen, x, y):
+    def __init__(self, ai_settings, screen, x, y, *groups):
         # Pass herbivore-specific attributes to Creature
         stats = {
             "x": x,
@@ -16,13 +16,15 @@ class Player(Creature):
             "width": 96,
             "energy": 100,
             "speed": 90,
-            "inflate_rect": [-35,-35]
+            "inflate_rect": [-35,-35],
+            "herbs": groups[0],
+            "plants": groups[1]
             }
         super().__init__(ai_settings, screen, **stats)
       
-    def update(self, herbs, dt):
+    def update(self, dt):
         current_time = pygame.time.get_ticks()  
-        hits = pygame.sprite.spritecollide(self, herbs, False, 
+        hits = pygame.sprite.spritecollide(self, self.herbs, False, 
             collided=lambda s1, s2: s1.hitbox.colliderect(s2.hitbox))
         if hits:
             for hit in hits:             
@@ -41,7 +43,7 @@ class Player(Creature):
                 self.vel.x += self.speed
             if self.moving_left and self.hitbox.left > 0:
                 self.vel.x -= self.speed
-            if self.moving_up and self.hitbox.top > 0:
+            if self.moving_up and self.hitbox.top > 50:
                 self.vel.y -= self.speed
             if self.moving_down and self.hitbox.bottom < self.screen_rect.bottom:
                 self.vel.y += self.speed

@@ -1,9 +1,10 @@
 import sys
 import pygame
 from random import randint
+from planter import Planter
 from herbivore import Herbivore
 from player import Player
-from static_objects import Static_object
+from static_object import Static_object
 def check_keydown_events(event, player): #Add (ai_settings, screen) if handling more than movement
 #Respond to keypresses.
     if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
@@ -36,10 +37,11 @@ def check_events(ai_settings, screen, player):
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, player)
 
-def update_screen(ai_settings, screen, bg, all_sprites):
+def update_screen(ai_settings, screen, bg, all_sprites, all_plants):
 #Update images on the screen and flip to the new screen.
 # Redraw the screen during each pass through the loop.
-    screen.blit(bg)  
+    screen.blit(bg) 
+    all_plants.draw(screen) 
     sorted_sprites = sorted(all_sprites, key=lambda sprite: sprite.hitbox.bottom)
     # Blit sprites that move in order based on pos.y
     for sprite in sorted_sprites:
@@ -53,9 +55,9 @@ def update_screen(ai_settings, screen, bg, all_sprites):
 # Make the most recently drawn screen visible.
     pygame.display.flip()
 
-def crits_update(player, all_herbs, dt):
-        player.update(all_herbs, dt)
-        all_herbs.update(dt)   # Runs the update() method on every NPC in the group
+def sprites_update(all_sprites, all_plants, dt):
+        all_plants.update(dt)
+        all_sprites.update(dt)   # Runs the update() method on every NPC in the group
 
 def generate_herbs(ai_settings, screen, player, num, *groups):
         for i in range(num):
@@ -71,7 +73,38 @@ def generate_walls(ai_settings, screen, group):
     wall_w = [100, scr_w+200, scr_w+200, 100]
     wall_h = [scr_w, 100, 100, scr_w]
     x_coord = [-100, 0, 0, scr_w]
-    y_coord = [0, 0, scr_h, 0]
+    y_coord = [0, -50, scr_h, 0]
     for i in range(4):
         wall = Static_object(ai_settings, screen, x = x_coord[i], y = y_coord[i], width = wall_w[i], height = wall_h[i])
         group.add(wall)
+
+def generate_planters(ai_settings, screen, player, *groups):
+        num = 4
+        x_coord = [608,640]
+        y_coord = [384,416]
+        for i in range(num):
+            x = x_coord[i%2]
+            y = y_coord[i//2]
+            planter = Planter(ai_settings, screen, x, y, *groups)
+            groups[0].add(planter)
+
+def generate_assets(ai_settings):
+    screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height))
+    pygame.display.set_caption(ai_settings.caption)
+    background = pygame.image.load(ai_settings.background).convert()
+#Groups
+    all_herbs = pygame.sprite.Group()
+    all_sprites = pygame.sprite.Group()
+    all_obstacles = pygame.sprite.Group()
+    all_plants = pygame.sprite.Group()
+    #Player character
+    player = Player(ai_settings, screen, 600, 350, all_herbs, all_plants)
+    all_sprites.add(player)
+    #NPCs
+    generate_herbs(ai_settings, screen, player, 10, all_herbs, all_sprites,all_obstacles, all_plants)
+    #Outer boundaries
+    generate_walls(ai_settings, screen, all_obstacles)
+    #Planters
+    generate_planters(ai_settings, screen, player, all_plants)
+
+    return screen, player, background, all_sprites, all_plants

@@ -6,5 +6,6 @@ class Settings():
         self.screen_height = 720
         self.bg_color = ("forestgreen")
         self.caption = ("Simulation")
-        self.background = "graphics/bg16.png"
+        self.background = "graphics/bg0.png"
+        
   
