@@ -9,6 +9,7 @@ class Planter(Static_object):
             "height": 32,
             "width": 32,
             "image": "graphics/planter.png",
+            "inflate_rect": [-10,-10]
         }
         super().__init__(ai_settings, screen, **stats)
         self.empty_img = pygame.image.load("graphics/empty.png").convert_alpha()
@@ -24,15 +25,21 @@ class Planter(Static_object):
 
     def update(self, dt):
         if self.empty:
-            self.image = pygame.transform.scale(self.empty_img, (self.width, self.height))  
-        elif self.planted:
-            self.image = pygame.transform.scale(self.planted_img, (self.width, self.height))
+            self.image = self.empty_img       
         else:
-            if self.growing:
-                self.image = pygame.transform.scale(self.growing_img, (self.width, self.height))  
+            if self.planted:
+                self.image = self.planted_img  
+                self.grow_timer += dt
+                if self.grow_timer >= self.grow_time:
+                    self.planted = False
+                    self.growing = True
+                    self.grow_timer = 0
+            elif self.growing:
+                self.image = self.growing_img 
                 self.grow_timer += dt
                 if self.grow_timer >= self.grow_time:
                     self.growing = False
                     self.ready = True
-            if self.ready:
-                self.image = pygame.transform.scale(self.ready_img, (self.width, self.height))  
+                    self.grow_timer = 0
+            elif self.ready:
+                self.image = self.ready_img  

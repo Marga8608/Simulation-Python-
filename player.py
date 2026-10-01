@@ -2,7 +2,7 @@ from creature import Creature
 import pygame
 
 class Player(Creature):
-    def __init__(self, ai_settings, screen, x, y, *groups):
+    def __init__(self, ai_settings, screen, x, y, score,*groups):
         # Pass herbivore-specific attributes to Creature
         stats = {
             "x": x,
@@ -16,11 +16,17 @@ class Player(Creature):
             "width": 96,
             "energy": 100,
             "speed": 90,
-            "inflate_rect": [-35,-35],
+            "inflate_rect": [-55,-55],
             "herbs": groups[0],
             "plants": groups[1]
             }
         super().__init__(ai_settings, screen, **stats)
+        self.score = score
+        self.score.coins = 10
+        self.score.carrots_picked = 0
+        self.score.carrots_planted = 0
+        self.score.carrots_saved = 0
+
       
     def update(self, dt):
         current_time = pygame.time.get_ticks()  
@@ -56,6 +62,23 @@ class Player(Creature):
             self.hitbox.center = (round(self.pos.x), round(self.pos.y))
             self.animate(current_time) 
             self.rect.midbottom = self.hitbox.midbottom
+
+    def plot_interact(self):
+        hits = self.check_collisions(self.plants)
+        if hits:
+            plot = hits[0]
+            if plot.empty:
+                if self.score.coins >= 2:
+                    plot.empty = False
+                    plot.planted = True
+                    self.score.coins -= 2
+                    self.score.carrots_planted += 1
+                    plot.plant_time = pygame.time.get_ticks()
+            elif plot.ready:
+                plot.ready = False
+                plot.empty = True
+                self.score.coins += 5
+                self.score.carrots_picked += 1
         
         
           

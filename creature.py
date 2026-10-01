@@ -78,7 +78,7 @@ class Creature(pygame.sprite.Sprite):
         if self.vel.y < 0:
             self.moving_up = True
             self.moving_down = False
- 
+    #Animations
     def animate(self, current_time):
         speed = self.vel.length()
         if speed > 0:
@@ -116,10 +116,14 @@ class Creature(pygame.sprite.Sprite):
         y = row * height
         rect = pygame.Rect(x, y, width, height)
         return self.sheet.subsurface(rect)
-
-    def check_collisions(self, current_time):
-        hits = pygame.sprite.spritecollide(self, self.herbs, False, 
-        collided=lambda s1, s2: s1 != s2 and s1.hitbox.colliderect(s2.hitbox))
+    #Checkers
+    def check_collisions(self, other_rects):
+        hits = pygame.sprite.spritecollide(self, other_rects, False, 
+                collided=lambda s1, s2: s1 != s2 and s1.hitbox.colliderect(s2.hitbox))
+        return hits
+    
+    def check_bumps(self, current_time):
+        hits = self.check_collisions(self.herbs)
         if hits:
             if not self.escaping:
                 self.startled = True
@@ -131,9 +135,8 @@ class Creature(pygame.sprite.Sprite):
         # Checks for hitbox overlap
             self.check_overlap(target)
                
-    def wall_collisions(self):
-        hits = pygame.sprite.spritecollide(self, self.static, False, 
-        collided=lambda s1, s2: s1 != s2 and s1.hitbox.colliderect(s2.hitbox))
+    def check_walls(self):
+        hits = self.check_collisions(self.static)
         if hits:
             for hit in hits:
                 self.check_overlap(hit)

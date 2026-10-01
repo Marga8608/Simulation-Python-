@@ -3,7 +3,7 @@ import pygame
 import random
 
 class Herbivore(Creature):
-    def __init__(self, ai_settings, screen, player, x, y, *groups):
+    def __init__(self, ai_settings, screen, player, x, y, score, *groups):
         # Pass herbivore-specific attributes to Creature
         stats = {
             "x": x,
@@ -20,6 +20,7 @@ class Herbivore(Creature):
             "inflate_rect": [-40,-40],
             "herbs": groups[0],
             "static_objects": groups[2],
+            "plants": groups[3],
             "player": player
             }
         super().__init__(ai_settings, screen, **stats)
@@ -27,6 +28,7 @@ class Herbivore(Creature):
         self.angle = random.uniform(0,360)
         self.vel.from_polar((self.speed, self.angle))
         self.updated = pygame.time.get_ticks()
+        self.score = score
         
 
     def update(self, dt): 
@@ -42,10 +44,10 @@ class Herbivore(Creature):
         if self.vel.x == 0 or self.vel.y == 0:
             self.update_velocity()
 
-        self.wall_collisions()
+        self.check_walls()
 
         #self.player_collision()
-        self.check_collisions(current_time)
+        self.check_bumps(current_time)
         #Update position based on movement flags and speed.
         self.update_flag()
         #Updates self.angle in case of bouncing off walls!!!

@@ -5,16 +5,22 @@ from planter import Planter
 from herbivore import Herbivore
 from player import Player
 from static_object import Static_object
+from score_board import ScoreBoard
+
+#Event checkers
 def check_keydown_events(event, player): #Add (ai_settings, screen) if handling more than movement
 #Respond to keypresses.
     if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
         player.moving_right = True
     elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
         player.moving_left = True
-    elif event.key == pygame.K_UP or event.key == pygame.K_w:
+    if event.key == pygame.K_UP or event.key == pygame.K_w:
         player.moving_up = True
     elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
         player.moving_down = True
+    if event.key == pygame.K_e:
+            player.plot_interact()
+
 
 def check_keyup_events(event, player):
 #Respond to key releases.
@@ -36,12 +42,14 @@ def check_events(ai_settings, screen, player):
             check_keydown_events(event, player)
         elif event.type == pygame.KEYUP:
             check_keyup_events(event, player)
-
-def update_screen(ai_settings, screen, bg, all_sprites, all_plants):
+            
+#Updaters
+def update_screen(ai_settings, screen, bg, score, all_sprites, all_plants):
 #Update images on the screen and flip to the new screen.
 # Redraw the screen during each pass through the loop.
     screen.blit(bg) 
     all_plants.draw(screen) 
+    score.draw()
     sorted_sprites = sorted(all_sprites, key=lambda sprite: sprite.hitbox.bottom)
     # Blit sprites that move in order based on pos.y
     for sprite in sorted_sprites:
@@ -51,19 +59,17 @@ def update_screen(ai_settings, screen, bg, all_sprites, all_plants):
     #pygame.draw.rect(screen, (255, 0, 0), player.hitbox, 2)
     #for sprite in all_sprites:
         #pygame.draw.rect(screen, (255, 0, 0), herb.hitbox, 2)
-    
-# Make the most recently drawn screen visible.
     pygame.display.flip()
 
 def sprites_update(all_sprites, all_plants, dt):
         all_plants.update(dt)
         all_sprites.update(dt)   # Runs the update() method on every NPC in the group
-
-def generate_herbs(ai_settings, screen, player, num, *groups):
+#Generators
+def generate_herbs(ai_settings, screen, player, num, score, *groups):
         for i in range(num):
             x =randint(20,ai_settings.screen_width)
             y =randint(20,ai_settings.screen_height)
-            herb = Herbivore(ai_settings, screen, player, x, y, *groups)
+            herb = Herbivore(ai_settings, screen, player, x, y, score, *groups)
             groups[0].add(herb)
             groups[1].add(herb)
 
@@ -98,13 +104,14 @@ def generate_assets(ai_settings):
     all_obstacles = pygame.sprite.Group()
     all_plants = pygame.sprite.Group()
     #Player character
-    player = Player(ai_settings, screen, 600, 350, all_herbs, all_plants)
+    score = ScoreBoard(screen)
+    player = Player(ai_settings, screen, 600, 350, score,all_herbs, all_plants)
     all_sprites.add(player)
     #NPCs
-    generate_herbs(ai_settings, screen, player, 10, all_herbs, all_sprites,all_obstacles, all_plants)
+    generate_herbs(ai_settings, screen, player, 10, score, all_herbs, all_sprites, all_obstacles, all_plants)
     #Outer boundaries
     generate_walls(ai_settings, screen, all_obstacles)
     #Planters
     generate_planters(ai_settings, screen, player, all_plants)
 
-    return screen, player, background, all_sprites, all_plants
+    return screen, player, background, all_sprites, all_plants, score
