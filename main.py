@@ -16,8 +16,8 @@ def run_game():
     running = True
     game_active = True
     in_start_screen = True
-    title_font = pygame.font.Font(None, 64)
-    instruction_font = pygame.font.Font(None, 32)
+    
+
     button_rect = pygame.Rect(screen.get_width() // 2 - 100, screen.get_height() // 2 + 50, 200, 50)
     game_over_font = pygame.font.Font(None, 74)
 
@@ -25,28 +25,13 @@ def run_game():
         dt = clock.tick(60) / 1000.0
         in_start_screen = gf.check_events(ai_settings, screen, player, button_rect, in_start_screen)
         if in_start_screen:
-            screen.fill("darkolivegreen")
-            # Title & Instructions
-            title_surf = title_font.render("Farming Sim", True, "black")
-            screen.blit(title_surf, (screen.get_width() // 2 - title_surf.get_width() // 2, 150))
-        
-            inst_surf = instruction_font.render("Plant and harvest carrots with E and keep the bunnies away!", True, "black")
-            screen.blit(inst_surf, (screen.get_width() // 2 - inst_surf.get_width() // 2, 230))
-            # Play Button
-            pygame.draw.rect(screen, "white", button_rect, border_radius=8)
-            btn_text = instruction_font.render("PLAY", True, "black")
-            screen.blit(btn_text, (button_rect.centerx - btn_text.get_width() // 2, button_rect.centery - btn_text.get_height() // 2))
-
-            
-            pygame.display.flip()
-        
+            gf.start(screen, button_rect) 
         else:
             has_active_crops = any(not plant.empty for plant in all_plants)
             if score.coins <= 0 and not has_active_crops: 
                 game_active = False
         
             if game_active:
-                
                 gf.sprites_update(all_sprites, all_plants, dt)
                 gf.update_screen(ai_settings, screen, background, score, all_sprites, all_plants)
         

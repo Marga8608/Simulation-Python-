@@ -124,3 +124,20 @@ def generate_assets(ai_settings):
     generate_planters(ai_settings, screen, player, all_plants)
 
     return screen, player, background, all_sprites, all_plants, score
+
+def start(screen, button_rect):
+    title_font = pygame.font.Font(None, 64)
+    instruction_font = pygame.font.Font(None, 32)
+    screen.fill("darkolivegreen")
+    # Title & Instructions
+    title_surf = title_font.render("Farming Sim", True, "black")
+    screen.blit(title_surf, (screen.get_width() // 2 - title_surf.get_width() // 2, 150))
+        
+    inst_surf = instruction_font.render("Plant and harvest carrots with E and keep the bunnies away!", True, "black")
+    screen.blit(inst_surf, (screen.get_width() // 2 - inst_surf.get_width() // 2, 230))
+            # Play Button
+    pygame.draw.rect(screen, "white", button_rect, border_radius=8)
+    btn_text = instruction_font.render("PLAY", True, "black")
+    screen.blit(btn_text, (button_rect.centerx - btn_text.get_width() // 2, button_rect.centery - btn_text.get_height() // 2))
+
+    pygame.display.flip()
