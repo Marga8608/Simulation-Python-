@@ -27,5 +27,5 @@ class ScoreBoard:
         # Draw to the top-left corner
 
         for i, (key, value) in enumerate(stats.items()):
-            text_surface = self.font.render(f"{key}: {value}", True, "black")
+            text_surface = self.font.render(f"{key}: {value}", True, "white", "darkolivegreen")
             self.screen.blit(text_surface, (y_pos + (i * num), y_pos))

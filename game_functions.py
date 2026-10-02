@@ -33,16 +33,25 @@ def check_keyup_events(event, player):
     elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
         player.moving_down = False
 
-def check_events(ai_settings, screen, player):
+def check_events(ai_settings, screen, player, button_rect=None, in_start_screen=False):
 #Respond to keypresses
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-        elif event.type == pygame.KEYDOWN:
-            check_keydown_events(event, player)
-        elif event.type == pygame.KEYUP:
-            check_keyup_events(event, player)
-            
+        else:
+            if event.type == pygame.KEYDOWN:
+                check_keydown_events(event, player)
+            elif event.type == pygame.KEYUP:
+                check_keyup_events(event, player)
+            if in_start_screen and event.type == pygame.MOUSEBUTTONDOWN:
+                in_start_screen =check_clicks(ai_settings, screen, player, button_rect, in_start_screen)
+    return in_start_screen
+def check_clicks(ai_settings, screen, player, button_rect, in_start_screen):
+    mouse_pos = pygame.mouse.get_pos()
+    if button_rect.collidepoint(mouse_pos):
+        in_start_screen = False
+    return in_start_screen
+
 #Updaters
 def update_screen(ai_settings, screen, bg, score, all_sprites, all_plants):
 #Update images on the screen and flip to the new screen.
@@ -76,10 +85,10 @@ def generate_herbs(ai_settings, screen, player, num, score, *groups):
 def generate_walls(ai_settings, screen, group):
     scr_w = ai_settings.screen_width
     scr_h = ai_settings.screen_height
-    wall_w = [100, scr_w+200, scr_w+200, 100]
-    wall_h = [scr_w, 100, 100, scr_w]
-    x_coord = [-100, 0, 0, scr_w]
-    y_coord = [0, -50, scr_h, 0]
+    wall_w = [106, scr_w+200, scr_w+200, 106]
+    wall_h = [scr_w, 106, 106, scr_w]
+    x_coord = [-97, 0, 0, scr_w-3]
+    y_coord = [0, -50, scr_h-6, 0]
     for i in range(4):
         wall = Static_object(ai_settings, screen, x = x_coord[i], y = y_coord[i], width = wall_w[i], height = wall_h[i])
         group.add(wall)

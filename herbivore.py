@@ -57,6 +57,7 @@ class Herbivore(Creature):
             elif self.targetting:
                 direction = self.target.pos - self.pos
                 self.angle = direction.as_polar()[1]
+                self.speed = 100
                 if self.target.ready:
                     if self.hitbox.clip(self.target.hitbox):
                         self.targetting = False
