@@ -2,7 +2,7 @@ from creature import Creature
 import pygame
 
 class Player(Creature):
-    def __init__(self, ai_settings, screen, x, y, score,*groups):
+    def __init__(self, screen, x, y, score,*groups):
         # Pass herbivore-specific attributes to Creature
         stats = {
             "x": x,
@@ -20,7 +20,7 @@ class Player(Creature):
             "herbs": groups[0],
             "plants": groups[1]
             }
-        super().__init__(ai_settings, screen, **stats)
+        super().__init__(screen, **stats)
         self.score = score
         self.score.coins = 10
         self.score.carrots_picked = 0
@@ -40,12 +40,10 @@ class Player(Creature):
                     hit.pos -= overlap_vector*4
                     hit.hitbox.center = (round(hit.pos.x), round(hit.pos.y))
                 hit.angle = self.vel.as_polar()[1]
-                hit.escaping = True
-                hit.updated = current_time
-                if hit.targetting:
-                    hit.targetting = False
-                    hit.searching = True
+                if hit.state == "targetting":
                     self.score.carrots_saved += 1
+                hit.state = "escaping"
+                hit.updated = current_time
         else:    
             self.vel.update(0, 0)
             #Update position based on movement flags and speed.
@@ -71,18 +69,24 @@ class Player(Creature):
         hits = self.check_collisions(self.plants)
         if hits:
             plot = hits[0]
-            if plot.empty:
+            if plot.state == "empty":
                 if self.score.coins >= 2:
-                    plot.empty = False
-                    plot.planted = True
+                    plot.state = "planted"
                     self.score.coins -= 2
                     self.score.carrots_planted += 1
                     plot.plant_time = pygame.time.get_ticks()
-            elif plot.ready:
-                plot.ready = False
-                plot.empty = True
+            elif plot.state == "ready":
+                plot.state = "empty"
                 self.score.coins += 5
                 self.score.carrots_picked += 1
+
+    def to_dict(self):
+        return {
+            "x": self.pos.x,
+            "y": self.pos.y,
+            "vel_x": self.vel.x,
+            "vel_y" : self.vel.y
+        }
         
         
           

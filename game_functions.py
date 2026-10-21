@@ -1,4 +1,4 @@
-import sys
+
 import pygame
 from random import randint
 from planter import Planter
@@ -6,79 +6,24 @@ from herbivore import Herbivore
 from player import Player
 from static_object import Static_object
 from score_board import ScoreBoard
+from ui import Button
 
-#Event checkers
-def check_keydown_events(event, player): #Add (ai_settings, screen) if handling more than movement
-#Respond to keypresses.
-    if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-        player.moving_right = True
-    elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
-        player.moving_left = True
-    if event.key == pygame.K_UP or event.key == pygame.K_w:
-        player.moving_up = True
-    elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
-        player.moving_down = True
-    if event.key == pygame.K_e:
-            player.plot_interact()
+def init_buttons(screen):
+    ui_elements = {
+        "start_menu": {
+            "play_button": Button(screen.get_width() // 2 - 100, screen.get_height() // 2 + 50, 200, 50, "PLAY"),
+        },
+        "playing": {
+            "save_button": Button(screen.get_width() - 120, 20, 100, 40, "SAVE")
+        }
+    }
+    return ui_elements
 
-
-def check_keyup_events(event, player):
-#Respond to key releases.
-    if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-        player.moving_right = False
-    elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
-        player.moving_left = False
-    elif event.key == pygame.K_UP or event.key == pygame.K_w:
-        player.moving_up = False
-    elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
-        player.moving_down = False
-
-def check_events(ai_settings, screen, player, button_rect=None, in_start_screen=False):
-#Respond to keypresses
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit()
-        else:
-            if event.type == pygame.KEYDOWN:
-                check_keydown_events(event, player)
-            elif event.type == pygame.KEYUP:
-                check_keyup_events(event, player)
-            if in_start_screen and event.type == pygame.MOUSEBUTTONDOWN:
-                in_start_screen =check_clicks(ai_settings, screen, player, button_rect, in_start_screen)
-    return in_start_screen
-def check_clicks(ai_settings, screen, player, button_rect, in_start_screen):
-    mouse_pos = pygame.mouse.get_pos()
-    if button_rect.collidepoint(mouse_pos):
-        in_start_screen = False
-    return in_start_screen
-
-#Updaters
-def update_screen(ai_settings, screen, bg, score, all_sprites, all_plants):
-#Update images on the screen and flip to the new screen.
-# Redraw the screen during each pass through the loop.
-    screen.blit(bg) 
-    all_plants.draw(screen) 
-    score.draw()
-    sorted_sprites = sorted(all_sprites, key=lambda sprite: sprite.hitbox.bottom)
-    # Blit sprites that move in order based on pos.y
-    for sprite in sorted_sprites:
-        screen.blit(sprite.image, sprite.rect)
-   
-    #Rect debugging
-    #pygame.draw.rect(screen, (255, 0, 0), player.hitbox, 2)
-    #for sprite in all_sprites:
-        #pygame.draw.rect(screen, (255, 0, 0), herb.hitbox, 2)
-    pygame.display.flip()
-
-def sprites_update(all_sprites, all_plants, dt):
-        all_plants.update(dt)
-        all_sprites.update(dt)   # Runs the update() method on every NPC in the group
-#Generators
 def generate_herbs(ai_settings, screen, player, num, score, *groups):
         for i in range(num):
             x =randint(20,ai_settings.screen_width)
             y =randint(20,ai_settings.screen_height)
-            herb = Herbivore(ai_settings, screen, player, x, y, score, *groups)
+            herb = Herbivore(screen, player, x, y, score, *groups)
             groups[0].add(herb)
             groups[1].add(herb)
 
@@ -90,7 +35,7 @@ def generate_walls(ai_settings, screen, group):
     x_coord = [-97, 0, 0, scr_w-3]
     y_coord = [0, -50, scr_h-6, 0]
     for i in range(4):
-        wall = Static_object(ai_settings, screen, x = x_coord[i], y = y_coord[i], width = wall_w[i], height = wall_h[i])
+        wall = Static_object(screen, x = x_coord[i], y = y_coord[i], width = wall_w[i], height = wall_h[i])
         group.add(wall)
 
 def generate_planters(ai_settings, screen, player, *groups):
@@ -100,21 +45,17 @@ def generate_planters(ai_settings, screen, player, *groups):
         for i in range(num):
             x = x_coord[i%2]
             y = y_coord[i//2]
-            planter = Planter(ai_settings, screen, x, y, *groups)
+            planter = Planter(screen, x, y, *groups)
             groups[0].add(planter)
 
-def generate_assets(ai_settings):
-    screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height))
-    pygame.display.set_caption(ai_settings.caption)
-    background = pygame.image.load(ai_settings.background).convert()
-#Groups
+def generate_assets(ai_settings, screen):
     all_herbs = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group()
     all_obstacles = pygame.sprite.Group()
     all_plants = pygame.sprite.Group()
     #Player character
     score = ScoreBoard(screen, ai_settings.screen_width)
-    player = Player(ai_settings, screen, 600, 350, score,all_herbs, all_plants)
+    player = Player(screen, 600, 350, score,all_herbs, all_plants)
     all_sprites.add(player)
     #NPCs
     generate_herbs(ai_settings, screen, player, 10, score, all_herbs, all_sprites, all_obstacles, all_plants)
@@ -123,21 +64,5 @@ def generate_assets(ai_settings):
     #Planters
     generate_planters(ai_settings, screen, player, all_plants)
 
-    return screen, player, background, all_sprites, all_plants, score
+    return player, all_sprites, all_plants, score
 
-def start(screen, button_rect):
-    title_font = pygame.font.Font(None, 64)
-    instruction_font = pygame.font.Font(None, 32)
-    screen.fill("darkolivegreen")
-    # Title & Instructions
-    title_surf = title_font.render("Farming Sim", True, "black")
-    screen.blit(title_surf, (screen.get_width() // 2 - title_surf.get_width() // 2, 150))
-        
-    inst_surf = instruction_font.render("Plant and harvest carrots with E and keep the bunnies away!", True, "black")
-    screen.blit(inst_surf, (screen.get_width() // 2 - inst_surf.get_width() // 2, 230))
-            # Play Button
-    pygame.draw.rect(screen, "white", button_rect, border_radius=8)
-    btn_text = instruction_font.render("PLAY", True, "black")
-    screen.blit(btn_text, (button_rect.centerx - btn_text.get_width() // 2, button_rect.centery - btn_text.get_height() // 2))
-
-    pygame.display.flip()

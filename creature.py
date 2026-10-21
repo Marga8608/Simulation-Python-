@@ -2,12 +2,11 @@ import pygame
 import random
 
 class Creature(pygame.sprite.Sprite):
-    def __init__(self, ai_settings, screen, **stats):
+    def __init__(self, screen, **stats):
         # 1. Initialize Pygame's Sprite parent class
         super().__init__()
         #Screen settings
         self.screen = screen 
-        self.ai_settings = ai_settings 
         self.screen_rect = self.screen.get_rect()
         #Sprite 
         sheet = stats.get("sprite_sheet")       
@@ -54,8 +53,7 @@ class Creature(pygame.sprite.Sprite):
         self.moving_left = False
         self.moving_up = False
         self.moving_down = False
-        self.escaping = False
-        self.startled = False
+
         #Groups
 
     def blitme(self):
@@ -124,24 +122,20 @@ class Creature(pygame.sprite.Sprite):
         return hits
     
     def check_plants(self):
-            hits = pygame.sprite.spritecollide(self, self.plants, False, 
-                    collided=lambda s1, s2: s1 != s2 and s1.targ_rect.colliderect(s2.hitbox))
-            for hit in hits:
-                if hit.ready:
-                    return hit
+        hits = pygame.sprite.spritecollide(self, self.plants, False, 
+            collided=lambda s1, s2: s1 != s2 and s1.targ_rect.colliderect(s2.hitbox))
+        return hits
     
     
     def check_bumps(self, current_time):
         hits = self.check_collisions(self.herbs)
         if hits:
-            if not self.escaping:
-                self.startled = True
-                self.updated = current_time
+            self.state = "startled"
+            self.updated = current_time
             target = hits[0]
             target.angle, self.angle = self.vel.as_polar()[1], target.vel.as_polar()[1]
-            if not target.escaping:
-                target.startled = True
-                target.updated = current_time
+            target.state = "startled"
+            target.updated = current_time
         # Checks for hitbox overlap
             self.check_overlap(target)
                

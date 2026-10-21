@@ -18,10 +18,10 @@ class ScoreBoard:
         num = self.screen_width // 4  # Divide the screen width into 4 equal parts for spacing
         # Render text into a surface. True is for anti-aliasing. (255,255,255) is white.
         stats = {
-            "Carrot eaten": {self.carrots_eaten}, 
-            "Carrots picked": {self.carrots_picked},
-            "Carrots saved": {self.carrots_saved}, 
-            "Coins": {self.coins}
+            "Carrot eaten": self.carrots_eaten, 
+            "Carrots picked": self.carrots_picked,
+            "Carrots saved": self.carrots_saved, 
+            "Coins": self.coins
         }
         num = (self.screen_width - 20) / len(stats)
         # Draw to the top-left corner

@@ -3,7 +3,7 @@ import pygame
 import random
 
 class Herbivore(Creature):
-    def __init__(self, ai_settings, screen, player, x, y, score, *groups):
+    def __init__(self, screen, player, x, y, score, *groups):
         # Pass herbivore-specific attributes to Creature
         stats = {
             "x": x,
@@ -23,54 +23,57 @@ class Herbivore(Creature):
             "plants": groups[3],
             "player": player
             }
-        super().__init__(ai_settings, screen, **stats)
+        super().__init__(screen, **stats)
         
         self.angle = random.uniform(0,360)
         self.vel.from_polar((self.speed, self.angle))
         self.updated = pygame.time.get_ticks()
         self.score = score
-        self.searching = True
-        self.targetting = False
+        self.state = "searching"
         self.target = None
         self.targ_rect = self.rect.inflate(300, 300)
         
 
     def update(self, dt): 
         current_time = pygame.time.get_ticks() 
-        if self.escaping and current_time - self.updated < self.interval:
-                self.speed =150
-                self.startled = False
-        elif self.startled and current_time - self.updated < self.interval:
-                self.speed = 100
+        if self.state == "escaping" or self.state == "startled":
+            if current_time - self.updated >= self.interval:
+                self.state = "searching"              
+            else:
+                if self.state == "escaping":
+                    self.speed = 150
+                else:
+                    self.speed = 100      
         else:  
-            self.escaping = False
-            self.startled = False
-            self.speed = self.normal_speed
-            if self.searching:
-                target = self.check_plants()
-                if target:
-                    self.targetting = True
-                    self.searching = False
-                    self.target = target
-                    direction = target.pos - self.pos
-                    self.angle = direction.as_polar()[1]
-            elif self.targetting:
+                    
+            if self.state == "searching":    
+                self.speed = self.normal_speed             
+                targets = self.check_plants()
+                if targets:
+                    for target in targets:
+                        if target.state == "ready":
+                            self.target = target
+                            self.state = "targetting"
+                            self.speed = 100
+                            direction = target.pos - self.pos
+                            self.angle = direction.as_polar()[1]
+                            break
+            elif self.state == "targetting":
                 direction = self.target.pos - self.pos
                 self.angle = direction.as_polar()[1]
-                self.speed = 100
-                if self.target.ready:
-                    if self.hitbox.clip(self.target.hitbox):
-                        self.targetting = False
-                        self.searching = True
-                        self.target.ready = False
-                        self.target.empty = True
-                        self.escaping = True
+                
+                if self.target.state == "ready":
+                    if self.hitbox.colliderect(self.target.hitbox):
+                    
+                        self.state = "escaping"
+                        self.target.state = "empty"
+                        self.target = None 
                         self.updated = current_time
                         self.score.carrots_eaten += 1
                 else:
-                     self.targetting = False
-                     self.searching = True  
-                     self.target = None  
+                    self.state = "searching"
+                    self.target = None
+                      
             
         self.vel.from_polar((self.speed, self.angle))
         self.check_walls()

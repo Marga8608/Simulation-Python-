@@ -2,7 +2,7 @@ from static_object import Static_object
 import pygame
 
 class Planter(Static_object):
-    def __init__(self, ai_settings, screen,  x, y, *groups):
+    def __init__(self, screen,  x, y, *groups):
         stats = {
             "x": x,
             "y": y,
@@ -11,7 +11,7 @@ class Planter(Static_object):
             "image": "graphics/planter.png",
             "inflate_rect": [-10,-10]
         }
-        super().__init__(ai_settings, screen, **stats)
+        super().__init__(screen, **stats)
         empty_img = pygame.image.load("graphics/empty.png").convert_alpha()
         planted_img = pygame.image.load("graphics/planted.png").convert_alpha()
         growing_img = pygame.image.load("graphics/growing.png").convert_alpha()
@@ -20,30 +20,32 @@ class Planter(Static_object):
         self.growing_img = pygame.transform.scale(growing_img, (self.width, self.height))
         self.ready_img = pygame.transform.scale(ready_img, (self.width, self.height))
         self.planted_img = pygame.transform.scale(planted_img, (self.width, self.height))
-        self.empty = True
-        self.planted = False
-        self.growing = False
-        self.ready = False
+        self.state = "empty"
         self.grow_timer = 0
         self.grow_time = 10.0  # Time in seconds for the planter to
 
     def update(self, dt):
-        if self.empty:
+        if self.state == "empty":
             self.image = self.empty_img       
         else:
-            if self.planted:
+            if self.state == "planted":
                 self.image = self.planted_img  
                 self.grow_timer += dt
-                if self.grow_timer >= self.grow_time:
-                    self.planted = False
-                    self.growing = True
+                if self.grow_timer >= self.grow_time:                 
+                    self.state = "growing"
                     self.grow_timer = 0
-            elif self.growing:
+            elif self.state == "growing":
                 self.image = self.growing_img 
                 self.grow_timer += dt
                 if self.grow_timer >= self.grow_time:
-                    self.growing = False
-                    self.ready = True
+                    self.state = "ready"
                     self.grow_timer = 0
-            elif self.ready:
+            elif self.state == "ready":
                 self.image = self.ready_img  
+
+    def to_dict(self):
+            return {
+                "x": self.pos.x,
+                "y": self.pos.y,
+
+            }

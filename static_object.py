@@ -1,11 +1,10 @@
 import pygame
 
 class Static_object(pygame.sprite.Sprite):
-    def __init__(self, ai_settings, screen, image = None, **stats):
+    def __init__(self, screen, image = None, **stats):
         # 1. Initialize Pygame's Sprite parent class
         super().__init__()
         self.screen = screen
-        self.ai_settings = ai_settings
         self.width = stats.get("width")
         self.height = stats.get("height")
         x = stats.get("x")
