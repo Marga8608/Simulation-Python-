@@ -30,8 +30,7 @@ class Creature(pygame.sprite.Sprite):
         self.interval = 5000
         self.animation_list = self.load_frames()
         crit_image = self.animation_list[0][0]
-        self.image = pygame.transform.scale(crit_image, (self.width, self.height))  
-        
+        self.image = pygame.transform.scale(crit_image, (self.width, self.height))    
         self.animation_cooldown = 200
 
         #Directions: 0 - Down , 1 - Right, 2 - Left, 3 - Up
@@ -44,6 +43,7 @@ class Creature(pygame.sprite.Sprite):
         self.pos = pygame.math.Vector2(stats.get("x"), stats.get("y"))
         self.vel = pygame.math.Vector2()
         self.rect = self.image.get_rect()
+        self.targ_rect = self.rect.inflate(300, 300)
         self.hitbox = self.rect.inflate(self.infl_rect[0], self.infl_rect[1]) 
         self.hitbox.center = (round(self.pos.x), round(self.pos.y))
         self.rect.center = self.hitbox.center

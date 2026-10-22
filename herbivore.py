@@ -31,7 +31,7 @@ class Herbivore(Creature):
         self.score = score
         self.state = "searching"
         self.target = None
-        self.targ_rect = self.rect.inflate(300, 300)
+        
         
 
     def update(self, dt): 
@@ -59,22 +59,20 @@ class Herbivore(Creature):
                             self.angle = direction.as_polar()[1]
                             break
             elif self.state == "targetting":
-                direction = self.target.pos - self.pos
-                self.angle = direction.as_polar()[1]
-                
-                if self.target.state == "ready":
-                    if self.hitbox.colliderect(self.target.hitbox):
-                    
-                        self.state = "escaping"
-                        self.target.state = "empty"
-                        self.target = None 
-                        self.updated = current_time
-                        self.score.carrots_eaten += 1
+                if self.target is not None:
+                    direction = self.target.pos - self.pos
+                    self.angle = direction.as_polar()[1]    
+                    if self.target.state == "ready":
+                        if self.hitbox.colliderect(self.target.hitbox):
+                            self.state = "escaping"
+                            self.target.state = "empty"
+                            self.target = None 
+                            self.updated = current_time
+                            self.score.carrots_eaten += 1
                 else:
                     self.state = "searching"
                     self.target = None
-                      
-            
+                             
         self.vel.from_polar((self.speed, self.angle))
         self.check_walls()
 

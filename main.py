@@ -33,9 +33,9 @@ def run_game():
    
     while running:
         dt = clock.tick(60) / 1000.0
-        running, current_state = events.check_events(player, ui_elements.get(current_state), current_state)
+        running, current_state = events.check_events(player, ui_elements.get(str(current_state)), current_state)
         if current_state == "start_menu":
-            ui.start(screen, ui_elements.get(current_state)) 
+            ui.start(screen, ui_elements.get(str(current_state))) 
         elif current_state == "playing":
             has_active_crops = any(not plant.state == "empty" for plant in all_plants)
             if score.coins <= 0 and not has_active_crops: 
