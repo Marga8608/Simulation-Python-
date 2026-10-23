@@ -47,5 +47,5 @@ class Planter(Static_object):
             return {
                 "x": self.pos.x,
                 "y": self.pos.y,
-
+                "state": self.state
             }

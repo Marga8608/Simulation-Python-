@@ -86,3 +86,12 @@ class Herbivore(Creature):
         self.hitbox.center = (round(self.pos.x), round(self.pos.y))
         self.animate(current_time) 
         self.rect.center = self.hitbox.center
+
+    def to_dict(self):
+            return {
+                "x": self.pos.x,
+                "y": self.pos.y,
+                "vel_x": self.vel.x,
+                "vel_y" : self.vel.y,
+                "state" : self.state
+            }

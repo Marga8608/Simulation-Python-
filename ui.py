@@ -31,6 +31,22 @@ def start(screen, buttons):
 
     pygame.display.flip()
 
+def load(screen, buttons):
+    title_font = pygame.font.Font(None, 64)
+    instruction_font = pygame.font.Font(None, 32)
+    screen.fill("darkolivegreen")
+    # Title & Instructions
+    title_surf = title_font.render("Farming Sim", True, "black")
+    screen.blit(title_surf, (screen.get_width() // 2 - title_surf.get_width() // 2, 150))
+        
+    inst_surf = instruction_font.render("Choose a game to load:", True, "black")
+    screen.blit(inst_surf, (screen.get_width() // 2 - inst_surf.get_width() // 2, 230))
+    
+    for button in buttons.values():
+        button.draw(screen)
+
+    pygame.display.flip()
+
 def game_over(screen):
     game_over_font = pygame.font.Font(None, 74)
     screen.fill("black")

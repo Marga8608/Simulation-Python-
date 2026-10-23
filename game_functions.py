@@ -12,7 +12,11 @@ def init_buttons(screen):
     ui_elements = {
         "start_menu": {
             "play_button": Button(screen.get_width() // 2 - 100, screen.get_height() // 2 + 50, 200, 50, "PLAY"),
+            "load_button": Button(screen.get_width() // 2 - 300, screen.get_height() // 2 + 50, 200, 50, "LOAD GAME")
         },
+        "load_menu": {
+            "load_1": Button(screen.get_width() // 2 - 300, screen.get_height() // 2 + 50, 200, 50, "LOAD SAVED GAME")
+            },
         "playing": {
             "save_button": Button(screen.get_width() - 120, 20, 100, 40, "SAVE")
         }
@@ -66,3 +70,30 @@ def generate_assets(ai_settings, screen):
 
     return player, all_sprites, all_plants, score
 
+def load_assets(ai_settings, screen, saved_file):
+    all_herbs = pygame.sprite.Group()
+    all_sprites = pygame.sprite.Group()
+    all_obstacles = pygame.sprite.Group()
+    all_plants = pygame.sprite.Group()
+    score = ScoreBoard(screen, ai_settings.screen_width, **saved_file["stats"])
+    player = Player(screen, 600, 350, score,all_herbs, all_plants)
+    player_data = saved_file["player"]
+    player.pos = pygame.math.Vector2(player_data.get("x"), player_data.get("y"))
+    player.vel = pygame.math.Vector2(player_data.get("vel_x"), player_data.get("vel_y"))
+    all_sprites.add(player)
+    herb_data = saved_file["bunnies"]
+    groups =  all_herbs, all_sprites, all_obstacles, all_plants
+    for data in herb_data:
+        herb = Herbivore(screen, player, data.get("x"), data.get("y"), score, *groups)
+        herb.vel = pygame.math.Vector2(data.get("vel_x"), data.get("vel_y"))   
+        herb.state = data.get("state")
+        groups[0].add(herb)
+        groups[1].add(herb)  
+    generate_walls(ai_settings, screen, all_obstacles)
+    plant_data = saved_file["planters"]
+    for data in plant_data:
+        planter = Planter(screen, data.get("x"), data.get("y"), all_plants)
+        planter.state = data.get("state")
+        all_plants.add(planter)
+        
+    return player, all_sprites, all_plants, score

@@ -7,6 +7,7 @@ import game_functions as gf
 import events
 import ui
 import render
+import api
 
 
 # Initialize game and create a screen object.
@@ -30,12 +31,20 @@ def run_game():
     ui_elements = gf.init_buttons(screen)
     current_state = "start_menu"
     running = True
-   
+    to_save = [player, all_sprites, all_plants, score]
     while running:
         dt = clock.tick(60) / 1000.0
-        running, current_state = events.check_events(player, ui_elements.get(str(current_state)), current_state)
+        running, current_state = events.check_events(to_save, ui_elements.get(str(current_state)), current_state)
         if current_state == "start_menu":
-            ui.start(screen, ui_elements.get(str(current_state))) 
+            ui.start(screen, ui_elements.get(str(current_state)))
+        elif current_state == "load_menu":
+            ui.load(screen, ui_elements.get(str(current_state))) 
+        elif current_state == "loading":
+            saved_data = api.load_game()
+            if saved_data is not None:
+                player, all_sprites, all_plants, score = gf.load_assets(ai_settings, screen, saved_data)
+                to_save = [player, all_sprites, all_plants, score]
+                current_state = "playing"
         elif current_state == "playing":
             has_active_crops = any(not plant.state == "empty" for plant in all_plants)
             if score.coins <= 0 and not has_active_crops: 
@@ -47,6 +56,7 @@ def run_game():
             ui.game_over(screen)
 
     print("Saving to database and shutting down the server...")
+    api.save_game(*to_save)
     pygame.quit()
     # Terminate the background server process so it doesn't run forever
     server_process.terminate()

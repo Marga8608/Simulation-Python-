@@ -1,17 +1,18 @@
 import pygame
 
 class ScoreBoard:
-    def __init__(self, screen, screen_width):
+    def __init__(self, screen, screen_width, **stats):
         self.screen = screen
         self.screen_width = screen_width
         # None uses the default Pygame font. 36 is the font size.
         self.font = pygame.font.Font(None, 36) 
         
         # Track your stats here
-        self.carrots_eaten = 0
-        self.carrots_picked = 0
-        self.carrots_saved = 0
-        self.coins = 10
+        self.coins = stats.get("coins", 0)
+        self.carrots_eaten = stats.get("carrots_eaten", 0)
+        self.carrots_saved = stats.get("arrots_saved", 0)
+        self.carrots_picked = stats.get("carrots_picked", 0)
+        
         
     def draw(self):
         y_pos = 10
